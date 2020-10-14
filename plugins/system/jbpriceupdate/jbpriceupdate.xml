@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="system" method="upgrade">
+	<name>System - JBZoo Price Update</name>
+	<author>V.Kalinin</author>
+	<creationDate>December 2019</creationDate>
+	<copyright>Copyright (C) 201 vvkalinin.ru. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>kbb.bor@yandex.ru</authorEmail>
+	<authorUrl>vvkalinin.ru</authorUrl>
+	<version>1.0.3</version>
+	<description><![CDATA[PLG_SYSTEM_JBPRICEUPDATE_DESCRIPTION]]></description>
+
+	<files>
+		<filename plugin="jbpriceupdate">jbpriceupdate.php</filename>
+		<folder>language</folder>
+	</files>
+
+	<languages>
+		<!--<language tag="en-GB">en-GB.plg_system_redirect.ini</language>
+		<language tag="en-GB">en-GB.plg_system_redirect.sys.ini</language>-->
+		<language tag="ru-RU">ru-RU/ru-RU.plg_system_jbpriceupdate.ini</language>
+		<language tag="ru-RU">ru-RU/ru-RU.plg_system_jbpriceupdate.sys.ini</language>
+	</languages>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="jbzoo_appId" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_APPID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_APPID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_APPID_LABEL" />
+				
+				<field name="jbzoo_catId" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_CATID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_CATID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_CATID_LABEL" />
+				
+				<field name="jbzoo_ssid" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_SSID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_SSID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_SSID_LABEL" />
+				
+				<field name="jbzoo_spid" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_SPID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_SPID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_SPID_LABEL" />
+				
+				<field name="jbzoo_elementid_sku" type="textarea" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_LABEL" />
+				
+				<field name="reset_cost" type="radio" default="1"
+				label="Обнулять цену у отсутствующих?"
+				description="Устанавливать цену = 0, если товара нет на складе поставщика"
+				hint=""
+				class="btn-group btn-group-yesno">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				
+				<field name="multiplicity_rounding" type="integer" default="50" first="0" last="50" step="5"
+				label="PLG_SYSTEM_JBPRICEUPDATE_MULTIPLICITY_ROUNDING_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_MULTIPLICITY_ROUNDING_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_MULTIPLICITY_ROUNDING_LABEL" />
+				
+<!--		<field
+				name="exclude_urls"
+				type="subform"
+				label="PLG_SYSTEM_REDIRECT_FIELD_EXCLUDE_URLS_LABEL"
+				description="PLG_SYSTEM_REDIRECT_FIELD_EXCLUDE_URLS_DESC"
+				multiple="true"
+				formsource="plugins/system/redirect/form/excludes.xml"
+			/>-->
+			</fieldset>
+			<fieldset name="vtt" label="PLG_SYSTEM_JBPRICEUPDATE_FIELDSET_VTT_LABEL">
+				<field name="vtt_wsdlurl" type="text" default=""
+				label="API WSDL_URL"
+				description="http://api.vtt.ru/index.php?id=3"
+				hint="API WSDL_URL" />
+				
+				<field name="vtt_login" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_VTT_LOGIN_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_VTT_LOGIN_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_VTT_LOGIN_LABEL" />
+				
+				<field name="vtt_psswd" type="password" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_VTT_PSSWD_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_VTT_PSSWD_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_VTT_PSSWD_LABEL" />
+				
+				<field name="sp1" label="&lt;b&gt;Параметры формирования цены:&lt;/b&gt;" type="spacer" />
+				
+				<field name="vtt_margin" type="text" default="1.5"
+				label="PLG_SYSTEM_JBPRICEUPDATE_VTT_MARGIN_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_VTT_MARGIN_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_VTT_MARGIN_LABEL"  />
+			</fieldset>
+			
+			<fieldset name="bion" label="PLG_SYSTEM_JBPRICEUPDATE_FIELDSET_BION_LABEL">
+				<field class="inputbox" name="bion_auth_wsdlurl" type="text" default="" size="500"
+				label="API Authentication WSDL_URL"
+				description="SOAP API WSDL_URL"
+				hint="API Authentication WSDL_URL" />
+				
+				<field name="bion_catalog_wsdlurl" type="text" default="" size="500"
+				label="API Catalog WSDL_URL"
+				description="SOAP API WSDL_URL"
+				hint="API Catalog WSDL_URL" />
+				
+				<field name="bion_document_wsdlurl" type="url" default="" size="500"
+				label="API Document WSDL_URL"
+				description="SOAP API WSDL_URL"
+				hint="API Document WSDL_URL" />
+				
+				<field name="bion_login" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_BION_LOGIN_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_BION_LOGIN_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_BION_LOGIN_LABEL" />
+
+				<field name="bion_psswd" type="password" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_BION_PSSWD_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_BION_PSSWD_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_BION_PSSWD_LABEL" />
+				
+				<field name="bion_organizationId" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_BION_ORGANIZATIONID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_BION_ORGANIZATIONID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_BION_ORGANIZATIONID_LABEL" />
+				
+				<field name="sp2" label="&lt;b&gt;Параметры формирования цены:&lt;/b&gt;" type="spacer" />
+
+				<field name="bion_margin" type="text" default="1.15"
+				label="PLG_SYSTEM_JBPRICEUPDATE_BION_MARGIN_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_BION_MARGIN_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_BION_MARGIN_LABEL"  />
+			</fieldset>
+		</fields>
+	</config>
+</extension>
