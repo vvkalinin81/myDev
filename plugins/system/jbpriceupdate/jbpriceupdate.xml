@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0" type="plugin" group="system" method="upgrade">
-	<name>System - JBZoo Price Update</name>
+	<name>![CDATA[PLG_SYSTEM_JBPRICEUPDATE]]</name>
 	<author>V.Kalinin</author>
 	<creationDate>December 2019</creationDate>
 	<copyright>Copyright (C) 201 vvkalinin.ru. All rights reserved.</copyright>
@@ -16,15 +16,15 @@
 	</files>
 
 	<languages>
-		<!--<language tag="en-GB">en-GB.plg_system_redirect.ini</language>
-		<language tag="en-GB">en-GB.plg_system_redirect.sys.ini</language>-->
 		<language tag="ru-RU">ru-RU/ru-RU.plg_system_jbpriceupdate.ini</language>
 		<language tag="ru-RU">ru-RU/ru-RU.plg_system_jbpriceupdate.sys.ini</language>
+		<language tag="en-EN">en-EN/en-EN.plg_system_jbpriceupdate.ini</language>
+		<language tag="en-EN">en-EN/en-EN.plg_system_jbpriceupdate.sys.ini</language>
 	</languages>
 	
 	<config>
 		<fields name="params">
-			<fieldset name="basic">
+			<fieldset name="update" label="PLG_SYSTEM_JBPRICEUPDATE_FIELDSET_UPDATE_LABEL">
 				<field name="jbzoo_appId" type="text" default=""
 				label="PLG_SYSTEM_JBPRICEUPDATE_APPID_LABEL"
 				description="PLG_SYSTEM_JBPRICEUPDATE_APPID_DESC"
@@ -40,23 +40,18 @@
 				description="PLG_SYSTEM_JBPRICEUPDATE_SSID_DESC"
 				hint="PLG_SYSTEM_JBPRICEUPDATE_SSID_LABEL" />
 				
-				<field name="jbzoo_spid" type="text" default=""
-				label="PLG_SYSTEM_JBPRICEUPDATE_SPID_LABEL"
-				description="PLG_SYSTEM_JBPRICEUPDATE_SPID_DESC"
-				hint="PLG_SYSTEM_JBPRICEUPDATE_SPID_LABEL" />
-				
 				<field name="jbzoo_elementid_sku" type="textarea" default=""
 				label="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_LABEL"
 				description="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_DESC"
 				hint="PLG_SYSTEM_JBPRICEUPDATE_ELEMENTID_SKU_LABEL" />
 				
 				<field name="reset_cost" type="radio" default="1"
-				label="Обнулять цену у отсутствующих?"
-				description="Устанавливать цену = 0, если товара нет на складе поставщика"
-				hint=""
-				class="btn-group btn-group-yesno">
-					<option value="1">JYES</option>
-					<option value="0">JNO</option>
+					label="PLG_SYSTEM_JBPRICEUPDATE_RESETCOST_LABEL"
+					description="PLG_SYSTEM_JBPRICEUPDATE_RESETCOST_DESC"
+					hint=""
+					class="btn-group btn-group-yesno">
+						<option value="1">JYES</option>
+						<option value="0">JNO</option>
 				</field>
 				
 				<field name="multiplicity_rounding" type="integer" default="50" first="0" last="50" step="5"
@@ -73,10 +68,47 @@
 				formsource="plugins/system/redirect/form/excludes.xml"
 			/>-->
 			</fieldset>
+			
+			<fieldset name="getorders" label="PLG_SYSTEM_JBPRICEUPDATE_FIELDSET_GETORDERS_LABEL">
+				<field name="jbzoo_spid" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_SPID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_SPID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_SPID_LABEL" />
+				
+				<field name="paymentTypeId" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_PAYMENTTYPEID_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_PAYMENTTYPEID_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_PAYMENTTYPEID_LABEL" />
+				
+				<field name="sp1" label="&lt;b&gt;Идентификаторы полей данных заказчика:&lt;/b&gt;" type="spacer" />
+				
+				<field name="customerName_ID" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_NAME_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_NAME_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_NAME_LABEL" />
+				
+				<field name="customerINN_ID" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_INN_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_INN_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_INN_LABEL" />
+				
+				<field name="customerKPP_ID" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_KPP_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_KPP_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_KPP_LABEL" />
+				
+				<field name="customerAddress_ID" type="text" default=""
+				label="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_ADDRESS_LABEL"
+				description="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_ADRESS_DESC"
+				hint="PLG_SYSTEM_JBPRICEUPDATE_EXPORT_ADDRESS_LABEL" />
+				
+				
+			</fieldset>
+			
 			<fieldset name="vtt" label="PLG_SYSTEM_JBPRICEUPDATE_FIELDSET_VTT_LABEL">
 				<field name="vtt_wsdlurl" type="text" default=""
 				label="API WSDL_URL"
-				description="http://api.vtt.ru/index.php?id=3"
+				description="API WSDL_URL"
 				hint="API WSDL_URL" />
 				
 				<field name="vtt_login" type="text" default=""

@@ -269,8 +269,9 @@ class plgSystemJbpriceupdate extends JPlugin
 					$this->_item = $item;
 
 					$currentMetaData = (string)$this->_item->getParams()->get('metadata.keywords', '');
-					$currentMetaData = (string)str_replace(",,",",",$currentMetaData);
-					$currentMetaData = (string)str_replace(", ,",",",$currentMetaData);
+					$currentMetaData = (string)str_replace(",,",",",$currentMetaData); //temporary
+					$currentMetaData = (string)str_replace(", ,",",",$currentMetaData); //temporary
+					$metaData = htmlspecialchars($metaData);
 					if (!strpos($currentMetaData,(string)$metaData)) {
 						$this->_item->getParams()->set('metadata.keywords', $currentMetaData.', '.$metaData);
 						$this->zoo->table->item->save($this->_item);
@@ -434,6 +435,11 @@ class plgSystemJbpriceupdate extends JPlugin
 	{
 		$orders = JBModelOrder::model()->getList($filter);
 		
+		$customerNameElementId 		= $this->params->get('customerName_ID');
+		$customerINNElementId		= $this->params->get('customerINN_ID');
+		$customerKPPElementId		= $this->params->get('customerKPP_ID');
+		$customerAddressElementId	= $this->params->get('customerAddress_ID');
+		
 		foreach ($orders as $order) {
 			$shipping 		= $order->getShipping();
 			$shippingfields = $order->getShippingFields();
@@ -445,6 +451,15 @@ class plgSystemJbpriceupdate extends JPlugin
 			$orderData[$order->id]['total']				= $order->getTotalSum()->noStyle();
 			$orderData[$order->id]['payment']			= JText::_($payment->getName());
 			$orderData[$order->id]['payment_status']	= $payment_status->config->get('name');
+
+			if ($payment->identifier == $order->getPaymentElement($this->params->get('paymentTypeId'))->identifier)
+			{
+				$orderData[$order->id]['customer']['name']		= $order->getFieldElement($customerNameElementId)->get('value','');
+				$orderData[$order->id]['customer']['INN']		= $order->getFieldElement($customerINNElementId)->get('value','');
+				$orderData[$order->id]['customer']['KPP']		= $order->getFieldElement($customerKPPElementId)->get('value','');
+				$orderData[$order->id]['customer']['uraddress']	= $order->getFieldElement($customerAddressElementId)->get('value','');
+			}
+			
 			$orderData[$order->id]['shipping']['type']	= JText::_($shipping->config->get('name'));
 			$orderData[$order->id]['shipping']['price'] = $shipping->getRate()->noStyle();
 			foreach ($shippingfields as $field_key => $shippingfield) {
@@ -458,7 +473,7 @@ class plgSystemJbpriceupdate extends JPlugin
 				foreach ($modifiersOrder as $identifier=>$modifier) {
 					$groupModifier = $modifier->config->get('group');
 					$typeModifier = $modifier->config->get('type');
-					$orderData[$order->id]['modifiers'][$groupModifier][$typeModifier]['rate'] 	= $modifier->config->get('rate');
+					$orderData[$order->id]['modifiers'][$groupModifier][$typeModifier]['rate'] 	= $modifier->getRate()->text();
 				}
 			}
 					
@@ -466,6 +481,13 @@ class plgSystemJbpriceupdate extends JPlugin
 			foreach ($items as $item) {
 				$orderData[$order->id]['items'][$item->item_id]['sku'] 		= $item['elements']['_sku'];
 				$orderData[$order->id]['items'][$item->item_id]['name'] 	= JText::_($item->item_name);
+				if (isset($item['modifiers'])) {
+					$orderData[$order->id]['items'][$item->item_id]['itemmodifiers'] = array();
+					foreach ($item['modifiers'] as $itemModifier) {
+						$orderData[$order->id]['items'][$item->item_id]['itemmodifiers'][]['rate'] = $itemModifier['rate'][0];
+						$orderData[$order->id]['items'][$item->item_id]['itemmodifiers'][]['cur'] = $itemModifier['rate'][1];
+					}
+				}
 				$orderData[$order->id]['items'][$item->item_id]['price'] 	= $item['elements']['_value'];
 				$orderData[$order->id]['items'][$item->item_id]['discount']	= $order->val($item['elements']['_discount'])->noStyle();
 				$orderData[$order->id]['items'][$item->item_id]['quantity'] = $item->quantity;
