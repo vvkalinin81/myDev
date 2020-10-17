@@ -116,14 +116,6 @@ class plgSystemJbpriceupdate extends JPlugin
 		}
 	}
 	
-	public static function getValueElementSupplier($item, $supplier = null, $key = null)
-	{
-		//$this->_getListSupplierSkuElementId();
-		$this->_item = $item;
-		$this->_getSupplierSkuElement();
-		return $this->_getValueElementSupplier($supplier, $key);
-	}
-	
 	/**
 	* Обновление цен по данным API поставщика
 	* 
@@ -557,25 +549,6 @@ class plgSystemJbpriceupdate extends JPlugin
 			}
 		}
 		return null;
-	}
-	
-	/**
-	* 
-	* @param string $sku
-	* 
-	* @return assoc array in object 'vtt'
-	*/
-	private function getPriceItemVTTbySku($jbsku)
-	{
-		$item = JBModelItem::model()->getBySku($jbsku);
-
-		if (isset($item)) {
-			$this->_item = $item;
-			
-			$skuVtt = $this->getValueElementSupplier('vtt','sku');
-			
-			return $this->_supplierApi->getItemById($skuVtt);
-		}
 	}
 	
 	/**

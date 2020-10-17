@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.0" type="plugin" group="system" method="upgrade">
-	<name>![CDATA[PLG_SYSTEM_JBPRICEUPDATE]]</name>
+	<name><![CDATA[PLG_SYSTEM_JBPRICEUPDATE]]></name>
 	<author>V.Kalinin</author>
 	<creationDate>December 2019</creationDate>
 	<copyright>Copyright (C) 201 vvkalinin.ru. All rights reserved.</copyright>
