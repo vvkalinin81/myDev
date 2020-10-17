@@ -86,10 +86,6 @@ class plgSystemJbpriceupdate extends JPlugin
 					}
 				}else{
 					switch ($task) {
-						case 'update':
-							$catId = $input->get('catId',null);
-							$itemSku = $input->get('sku',null);
-							$this->_updateItemsFromApiSupplier($catId,$itemSku);
 						case 'metaadd':
 							$catId = $input->get('catId',null);
 							$metaData = $input->get('metakey',null,'STRING');
@@ -114,126 +110,6 @@ class plgSystemJbpriceupdate extends JPlugin
 				$this->_getListOrders($filter);
 			}
 		}
-	}
-	
-	/**
-	* Обновление цен по данным API поставщика
-	* 
-	* @return
-	*/
-	private function _updateItemsFromApiSupplier($listCatId = null, $ItemSku = null)
-	{
-		JLoader::register('supplierApiSupplier', JPATH_LIBRARIES . DIRECTORY_SEPARATOR.'supplierapi'.DIRECTORY_SEPARATOR.'supplier.php');
-		JLoader::register('vtt', JPATH_LIBRARIES . DIRECTORY_SEPARATOR.'supplierapi'.DIRECTORY_SEPARATOR.'vtt.php');
-		JLoader::register('bion', JPATH_LIBRARIES . DIRECTORY_SEPARATOR.'supplierapi'.DIRECTORY_SEPARATOR.'bion.php');
-		JLoader::register('supplierException', JPATH_LIBRARIES . DIRECTORY_SEPARATOR.'supplierapi'.DIRECTORY_SEPARATOR.'supplierException.php');
-		JLoader::register('logger', JPATH_LIBRARIES . DIRECTORY_SEPARATOR.'supplierapi'.DIRECTORY_SEPARATOR.'logger.php');
-		
-		try	{
-			$vttApi = new Vtt($this->params->get('vtt_wsdlurl'),$this->params->get('vtt_login'),$this->params->get('vtt_psswd'));
-		}catch (supplierException $E){
-			die;
-		}
-		 try {
-			 $bionApi = new Bion($this->params->get('bion_login'),$this->params->get('bion_psswd'),$this->params->get('bion_auth_wsdlurl'));
-		 }catch (supplierException $E)
-		 {
-			 die;
-		 }
-		 try {
-			 $bionApi->catalogZip($this->params->get('bion_catalog_wsdlurl'));
-		 }catch (supplierException $E)
-		 {
-			 die;
-		 }
-		
-		$appId = (array)explode(",", $this->params->get('jbzoo_appId'));
-		if (!empty($listCatId))
-		{
-			$catId = (array)explode(".", $listCatId);
-		}
-		else
-		{
-			$catId = (array)explode(",", $this->params->get('jbzoo_catId'));
-		}
-		if (empty($ItemSku)) {
-			$listItem = JBModelItem::model()->getList($appId,$catId);
-		} else {
-			$listItem[] = JBModelItem::model()->getBySku($ItemSku);
-		}
-
-		foreach ($listItem as $item) {
-			if (isset($item)) {
-				$this->_item = $item;
-				
-				$this->_getListSupplierSkuElementId();
-				$this->_item_suppliersku_element = $this->_getSupplierSkuElement();
-				
-				$supplier_sku_margin = $this->_getValueElementSupplier();
-				
-				if (is_array($supplier_sku_margin))
-				{
-					foreach ($supplier_sku_margin as $supplierKey=>$supplierData)
-					{
-						$this->_supplierApi = ${$supplierKey."Api"};
-						$this->_supplierApi->setNullDataItem();
-						$this->_supplierMargin = ($supplierData['margin'] >= $this->_getMargin()[$supplierKey]) 
-													? $supplierData['margin'] 
-													: $this->_getMargin()[$supplierKey];
-													
-						if (!empty($supplierData['sku']))
-						{
-							try
-							{
-								$this->getPriceItemSupplier($supplierData['sku']);
-							} catch (supplierException $E){
-								continue;
-							}
-							
-							if (isset($this->_supplierApi->_dataItem))
-							{
-								$this->_exchangeRate = $this->_supplierApi->getCBRRates(date('d/m/Y'))['USD'];
-								$this->_supplierPrice = (float)$this->_supplierApi->getPrice();
-								$this->_supplierIsQuantity = $this->_supplierApi->isTotalQuantity();
-								
-								//$desc = $this->_getDescriptionItemSupplier($supplierData['sku']);
-								
-								if ($this->params->get('reset_cost') == 1 && !($this->_supplierIsQuantity))
-								{
-									$this->_supplierPrice = 0;
-								}
-								break;
-							}else{
-								$this->item->state = 0;
-								$this->zoo->table->item->save($this->_item);
-								continue;
-							}
-						}
-					}
-				}else{
-					new supplierException("ItemID: ".$this->_item->id." пропущен. Неправильный формат или не задано значение элемента 'Артикул поставщика'.",0);
-					continue;
-				}
-				
-				$multiplicity_rounding = ($this->params->get('multiplicity_rounding')==0) ? 1 : $this->params->get('multiplicity_rounding');
-				
-				$this->_supplierPrice = ceil($this->_supplierPrice*$this->_supplierMargin*$this->_exchangeRate/$multiplicity_rounding)*$multiplicity_rounding;
-					
-				$list_prices = $this->zoo->jbprice->getItemPrices($this->_item);
-				foreach ($list_prices as $key_price => $el_price) {
-					$this->_item_price_element = $this->_item->getElement($key_price);
-					$item_sku = $this->_item_price_element->getData('0._sku')['value'];
-					$price_data = (array)$this->_item_price_element->data();
-
-					$price_data['variations']['0']['_value']['value'] = $this->_supplierPrice;
-					
-					$this->_item_price_element->bindData($price_data);
-					$this->zoo->table->item->save($this->_item);
-				}
-			}
-		}
-
-		jexit('OK');
 	}
 	
 	/**
@@ -315,16 +191,6 @@ class plgSystemJbpriceupdate extends JPlugin
 	}
 	
 	/**
-	* Возвращает из настроек ассоциативный массив с данными по наценкам для товаров поставщиков 
-	* 
-	* @return array
-	*/
-	private function _getMargin()
-	{
-		return array('vtt'=>$this->params->get('vtt_margin'),'bion'=>$this->params->get('bion_margin'));
-	}
-	
-	/**
 	* Обновление материала (товара) по переданному JSON-массиву данных
 	* 
 	* @return JSON
@@ -352,17 +218,6 @@ class plgSystemJbpriceupdate extends JPlugin
 					if (isset($good->_itemstate))
 					{
 						$this->_item->state = $good->_itemstate;
-					}
-					
-					if (isset($good->_sku_margin))
-					{
-						$this->_getListSupplierSkuElementId(); //загружает список ID элементов из настроек плагина
-						$this->_item_suppliersku_element = $this->_getSupplierSkuElement(); //элемент товара со значениями артикулов и наценок поставщиков
-						$arSupplierSkuData = $this->_item_suppliersku_element->data();
-						$arSupplierSkuData['0']['value'] = (string)json_encode($good->_sku_margin);
-						$this->_item_suppliersku_element->bindData($arSupplierSkuData);
-						$this->zoo->table->item->save($this->_item);
-						$this->_item_suppliersku_element->rewind();
 					}
 					
 					if (isset($good->category_primary)) {
@@ -494,105 +349,5 @@ class plgSystemJbpriceupdate extends JPlugin
 		jexit();
 	}
 	
-	/**
-	 * Получает список ID элементов типов материалов со значениями артикулов поставщиков 
-	 * в формате JSON из настроек плагина 
-	 * 
-	 * @return stdClass
-	 */
-	private function _getListSupplierSkuElementId()
-	{
-		$listSku = $this->params->get('jbzoo_elementid_sku');
-		$this->_json_dataSku 	= json_decode($listSku);
-	}
-	
-	/**
-	* 
-	* 
-	* @return mixed
-	*/
-	private function _getValueElementSupplier($supplier = null, $key = null)
-	{
-		if (isset($this->_item_suppliersku_element)) {
-			$obJson = json_decode($this->_item_suppliersku_element->get('value'),true);
-			if (!empty($supplier) && is_array($obJson))
-			{
-				if (!empty($key))
-				{
-					return $obJson[$supplier][$key];
-				} else {
-					return array($obJson[$supplier]['sku'],$obJson[$supplier]['margin']);
-				}
-			}
-			return $obJson;
-		}
-		return null;
-	}
-	
-	/**
-	* Получает элемент конкретного материала (_item),
-	* где хранится JSON-строка с данными по артикулам поставщиков и размере наценки
-	* 
-	* @return object | null 
-	*/
-	private function _getSupplierSkuElement()
-	{
-		if (!isset($this->_json_dataSku))
-		{
-			$this->_getListSupplierSkuElementId();
-		}
-		
-		foreach ($this->_json_dataSku->listId as $num => $elemenyId) {
-			$element = $this->_item->getElement($elemenyId);
-			if (!is_null($element)) {
-				return $element;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	* 
-	* @param string $sku
-	* 
-	* @return object 'vtt'
-	*/
-	private function getPriceItemVTT($sku)
-	{
-		return $this->_supplierApi->getItemById($sku);
-	}
-	
-	/**
-	* 
-	* @param string $sku
-	* 
-	* @return object 'bion'
-	*/
-	private function getPriceItemBion($sku)
-	{
-		return $this->_supplierApi->getItembyId($sku);
-	}
-	
-	/**
-	* 
-	* @param string $sku
-	* 
-	* @return object 
-	*/
-	private function getPriceItemSupplier($sku)
-	{
-		return $this->_supplierApi->getItembyId($sku);
-	}
-	
-	/**
-	* 
-	* @param string $sku
-	* 
-	* @return
-	*/
-	private function _getDescriptionItemSupplier($sku)
-	{
-		return $this->_supplierApi->getDescriptionByUid($sku);
-	}
 }
 ?>
